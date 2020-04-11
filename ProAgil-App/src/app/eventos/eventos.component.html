@@ -4,6 +4,7 @@
 <!--table.table.table-scriped>(thead.thead-dark>tr>th*7-->
 <!--  tbody>tr>td*7-->
 
+<app-titulo [titulo]="titulo"></app-titulo>
 <div class="d-flex">
   <div class="form-inline mr-auto">
     <div class="form-group mb-2">
@@ -53,7 +54,7 @@
       <td>{{evento.id}}</td>
       <td>{{evento.tema}}</td>
       <td>{{evento.local}}</td>
-      <td>{{evento.dataEvento | DateTimeFormatPipe}}</td>
+      <td>{{evento.dataEvento}}</td>
       <td>{{evento.qtdPessoas}}</td>
       <td>
         <div *ngIf="!evento.lotes.length">
@@ -70,21 +71,21 @@
           </button>
           <button class="btn btn=sm btn-danger" 
           tooltip="Excluir" (click)="excluirEvento(evento, confirm)">
-            <i class="fa fa-eraser"></i>      
-          </button>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-  <tfoot *ngIf="!eventos.length">
-    <tr>
-      <td colspan="7" class="text-center">
-        <h4>
-          Nenhum evento encontrado!
-        </h4>
-      </td>
-    </tr>
-  </tfoot>
+          <i class="fa fa-eraser"></i>      
+        </button>
+      </div>
+    </td>
+  </tr>
+</tbody>
+<tfoot *ngIf="!eventos">
+  <tr>
+    <td colspan="7" class="text-center">
+      <h4>
+        Nenhum evento encontrado!
+      </h4>
+    </td>
+  </tr>
+</tfoot>
 </table>
 
 <div bsModal #template="bs-modal" class="modal fade" tabindex="-1"
@@ -133,20 +134,20 @@ role="dialog" aria-labelledby="dialog-sizes-name1">
       Local é obrigatório.
     </div>
   </div>
-  <div class="form-group col-md-4">
-    <label>Data e Hora</label>
-    <input type="text" class="form-control"
-    bsDatepicker
-    [bsConfig]="{ dateInputFormat : 'DD/MM/YYYY hh:mm a'}"
-    [ngClass]="{'is-invalid': registerForm.get('dataEvento').errors 
-    && registerForm.get('dataEvento').touched}"
-    formControlName="dataEvento" placeholder="">
-    <div *ngIf="registerForm.get('dataEvento').hasError('required') 
-    && registerForm.get('dataEvento').touched" 
-    class="invalid-feedback">
-    Data e Hora é obrigatória.
+    <div class="form-group col-md-4">
+      <label>Data e Hora</label>
+      <input type="text" class="form-control"
+      bsDatepicker
+      [bsConfig]="{ dateInputFormat : 'DD/MM/YYYY hh:mm a'}"
+      [ngClass]="{'is-invalid': registerForm.get('dataEvento').errors 
+      && registerForm.get('dataEvento').touched}"
+      formControlName="dataEvento" placeholder="">
+      <div *ngIf="registerForm.get('dataEvento').hasError('required') 
+      && registerForm.get('dataEvento').touched" 
+      class="invalid-feedback">
+      Data e Hora é obrigatória.
+    </div>
   </div>
-</div>
 </div>  
 <div class="form-row">
   <div class="form-group col-md-3">
@@ -226,29 +227,29 @@ Deve ser um e-mail válido
 </div>
 
 <div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
-	<div class="modal-dialog modal-sm">
-  		<div class="modal-content">
-    		<div class="modal-header">
-      			<h4 class="modal-title pull-left">
-        			Deletando Evento
-      			</h4>
-      			<button type="button" class="close pull-right" (click)="confirm.hide()" aria-label="Close">
-        			<span aria-hidden="true">&times;</span>
-      			</button>
-    		</div>
-    		<div class="modal-body">
-      			<p>{{bodyDeletarEvento}}</p>
-    		</div>    
-    		<div class="modal-footer btn-group d-flex">      
-      			<button type="button" class="btn btn-outline-primary" (click)="confirm.hide()">
-        			CENCELAR
-      			</button>
-      			<button type="button" class="btn btn-outline-danger" (click)="confirmeDelete(confirm)">
-          			DELETAR
-        		</button>
-    		</div>
-  		</div>
-	</div>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          Deletando Evento
+        </h4>
+        <button type="button" class="close pull-right" (click)="confirm.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{bodyDeletarEvento}}</p>
+      </div>    
+      <div class="modal-footer btn-group d-flex">      
+        <button type="button" class="btn btn-outline-primary" (click)="confirm.hide()">
+          CENCELAR
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="confirmeDelete(confirm)">
+          DELETAR
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -258,3 +259,9 @@ Deve ser um e-mail válido
   <p>Form Value: {{registerForm.value | json}}</p>
   <p>Form Status: {{registerForm.status | json}}</p>
 -->
+
+<!-- 
+  //<td>{{evento.dataEvento | DateTimeFormatPipe}}
+    value="{{[ngModel]="dataEvento | DateTimeFormatPipe"}}"
+    [(ngModel)]="dataEvento"
+ -->
