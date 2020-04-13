@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,13 @@ using AutoMapper;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using ProAgil.Domain.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 
 namespace ProAgil.WebAPI
 {
@@ -33,11 +41,53 @@ namespace ProAgil.WebAPI
         {
             services.AddDbContext<ProAgilContext>(
                 x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            IdentityBuilder builder = services.AddIdentityCore<User>(options =>
+            {
+                //retirando configurações padrões do password
+                options.Password.RequireDigit = false;    
+                options.Password.RequireNonAlphanumeric = false;    
+                options.Password.RequireLowercase = false;    
+                options.Password.RequireUppercase = false;    
+                options.Password.RequiredLength = 4;    
+            }
+            );
+
+            //Configurações de Contexto, Role e Usuario
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+            builder.AddEntityFrameworkStores<ProAgilContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
+
+            //Configurando autenticacao JWT
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => 
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                            ValidateIssuer = false,
+                            ValidateAudience = false    
+                        };
+                    }
+                );
+
+            // Politica de Autenticação da Controller
+            services.AddMvc(options => {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    options.Filters.Add(new AuthorizeFilter(policy));                                                
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+            .AddJsonOptions(opt => opt.SerializerSettings.ReferenceLoopHandling = 
+             Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            
             services.AddScoped<IProAgilRepository, ProAgilRepository>();   
-
             services.AddAutoMapper();
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors();
         }
 
@@ -52,6 +102,8 @@ namespace ProAgil.WebAPI
             {
                 app.UseHsts();
             }
+
+            app.UseAuthentication();
 
             //app.UseHttpsRedirection();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
