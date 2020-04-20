@@ -37,7 +37,7 @@ export class EventoEditComponent implements OnInit {
   , private fb: FormBuilder
   , private localeService: BsLocaleService
   , private toastr: ToastrService
-  , private rooter: ActivatedRoute
+  , private router: ActivatedRoute
 ) {
   this.localeService.use('pt-br');
 }
@@ -48,7 +48,7 @@ ngOnInit() {
 }
 
 carregarEvento() {
-  const idEvento = +this.rooter.snapshot.paramMap.get('id');
+  const idEvento = +this.router.snapshot.paramMap.get('id');
   this.eventoService.getEventoById(idEvento)
     .subscribe(
       (evento: Evento[]) => {
@@ -107,14 +107,15 @@ removerRedeSocial(id: number) {
   this.redesSociais.removeAt(id);
 }
 
-onFileChange(file: FileList) {
-  const reader = new FileReader();
+  onFileChange(evento: any, file: FileList) {
+    const reader = new FileReader();
 
-  reader.onload = (event: any) => this.imagemURL = event.target.result;
+    reader.onload = (event: any) => this.imagemURL = event.target.result;
 
-  //this.file = event.target.files;
-  reader.readAsDataURL(file[0]);
-}
+    this.file = evento.target.files;
+    reader.readAsDataURL(file[0]);
+    console.log(this.imagemURL);
+  }
 
 
 salvarEvento() {
@@ -138,7 +139,7 @@ uploadImagem(){
       this.eventoService.postUpload(this.file, this.fileNameToUpdate).subscribe(
         () => {
           this.dataAtual = new Date().getMilliseconds().toString();
-          this.imagemURL = `http://localhost:5000/Resources/images/${this.evento[0].imagemURL}?_ts=${this.dataAtual}`;
+          this.imagemURL = `http://localhost:5000/Resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
         }
       );
   }
